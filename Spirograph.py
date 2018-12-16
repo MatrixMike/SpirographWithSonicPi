@@ -1,12 +1,18 @@
 #Author: marktini   github.com/marktini
 #Spirograph curve drawing program
 #Version 1.0
+#modified to Python3 by Robin Newman Dec 2018
+#additions to allow export of x,y coords using OSC message
+#with aid of pythonosc library
 import math
 import turtle
 import random
 import time
 from euclidian import euclidianGCD
 from frange import frange
+from pythonosc import osc_message_builder
+from pythonosc import udp_client
+
 
 
 class Spirograph:
@@ -28,6 +34,7 @@ class Spirograph:
  
     #draw the spirograph given current settings
     def draw(self):
+        
         #find greatest common denominator of r and R using Euclidian algorithm:
         gcd = euclidianGCD(self.r, self.R)
         #number of periods is the reduced numerator of the fraction r/R
@@ -62,7 +69,7 @@ class Spirograph:
         
         t = self.t #for brevity in future references to the turtle
         screen= t.getscreen() #same as above
-        
+        screen.bgcolor("black")
         
         #name the canvas window
         title = "Spirograph with R= " + str(self.R) + ", r = "+str(self.r) + ", and d = " +str(self.d)
@@ -79,18 +86,27 @@ class Spirograph:
         
         randColors = False #if True, change up colors randomly with each period
         t.color(self.color)
+        sender=udp_client.SimpleUDPClient("127.0.0.1",4559)
         pointsCount = 0
         for each in range(len(xCoordinates)):
             t.goto(xCoordinates[each], yCoordinates[each])
-            pointsCount = pointsCount + 1            
+            pointsCount = pointsCount + 1
+            #additonal section to export x.y coords using OSC message
+            if (pointsCount % (numPetals*2) == 0):
+                sender.send_message('/xcoord',xCoordinates[each])
+            if (pointsCount % (numPetals*4) ==0):
+                sender.send_message('/ycoord',yCoordinates[each])            
+            #end of additional section
             if (randColors):
                 if (pointsCount % ptsPeriod == 0):
                    red = random.random()
                    green = random.random()
                    blue = random.random()
                    t.color(red, green, blue)
-        print("Done drawing this curve")        
         t.hideturtle()
+        print("Done drawing this curve")        
+        time.sleep(2)
+        sender.send_message("/finished","done")
     
     #clear the drawing surface after "sec" seconds. Limit time to 2 min just in case
     def clear(self, sec):
