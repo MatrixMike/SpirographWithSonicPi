@@ -34,17 +34,17 @@ class Spirograph:
         numPeriods = self.r/gcd
         numPetals = self.R/gcd
         #calculate constants for graphing
-        print 'Periods: ', numPeriods
-        print 'Petals: ', numPetals
+        print('Periods: ', numPeriods)
+        print('Petals: ', numPetals)
         k = float(self.r)/self.R
         l = float(self.d)/self.r
         
-        print 'k=',self.r, '/',self.R, '=',k,' l=',self.d,'/',self.r,'=',l
+        print('k=',self.r, '/',self.R, '=',k,' l=',self.d,'/',self.r,'=',l)
         
         #use the custom-made frange function to make a list of angles of given increment
         angleIncrement = 0.01 #the smaller angleIncrement, the more data points
         ptsPeriod = math.ceil(2*math.pi/angleIncrement)
-        print "Points per Period: ", ptsPeriod
+        print("Points per Period: ", ptsPeriod)
         #frange function is an alternative to range(). The last argument specifies a decimal step
         angles = frange(0, 2*math.pi*numPeriods, angleIncrement)
         
@@ -58,7 +58,7 @@ class Spirograph:
             xCoordinates.append(thisX)
             yCoordinates.append(thisY)
             
-        print 'Num data points: ', len(xCoordinates)
+        print('Num data points: ', len(xCoordinates))
         
         t = self.t #for brevity in future references to the turtle
         screen= t.getscreen() #same as above
@@ -89,7 +89,7 @@ class Spirograph:
                    green = random.random()
                    blue = random.random()
                    t.color(red, green, blue)
-        print "Done drawing this curve"        
+        print("Done drawing this curve")        
         t.hideturtle()
     
     #clear the drawing surface after "sec" seconds. Limit time to 2 min just in case
