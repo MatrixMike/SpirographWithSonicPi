@@ -23,3 +23,13 @@ Install python-osc library using `pip3 install python-osc`
 Run the OSC server using `python3 spiroOSCserver.py`
 
 Run the program spiro in Sonic Pi to generate 7 drawings each accompanied by music
+
+*Release 2*
+
+Use the program spiroAuto.rb in Sonic Pi which utilises three new features
+
+* Program in Sonic Pi can be re-run to abort the current drawing and start a new one (best done using cmd+R)
+
+* data for the drawing is generated at random (with certain constraints)
+
+* random colour changes can be applied as the drawing executes
