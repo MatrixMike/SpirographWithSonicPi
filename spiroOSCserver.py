@@ -1,18 +1,42 @@
 #spiroOSCserver.py by Robin Newman, December 2018. (use python3)
+#additions added to support rand colour flag
+#additions added to launch spiroRun as subprocess
+#add support for kill OSC message
 from pythonosc import osc_server
 from pythonosc import dispatcher
+from pythonosc import osc_message_builder
+from pythonosc import udp_client
 import argparse
 import time
 import os
+import signal
+import shlex,subprocess
 from Spirograph import Spirograph
 
 cwd = os.getcwd() #current directory
 
+sender=udp_client.SimpleUDPClient("127.0.0.1",4559)
 def oscTest(unused_addr,args,data):
     print("data received",data)
-def drawIt(unused_addr,args,r,sr,d,col):
-   s="/usr/local/bin/python3 "+cwd+"/spiroRun.py -r "+r+" -sr "+sr+" -d "+d+" -col '"+col+"'"
-   os.system(s)
+def drawIt(unused_addr,args,r,sr,d,col,rand="false"):
+   global pd
+   s="/usr/local/bin/python3 "+cwd+"/spiroRun.py -r "+r+" -sr "+sr+" -d "+d+" -col '"+col+"' -rand '"+rand+"'"
+   args=shlex.split(s)
+   print(args)
+   #os.system(s)
+   process=subprocess.Popen(args)
+   pd=process.pid
+   print("pid",pd)
+
+def killit(unused_addr,args,data):
+    print("killing draw")
+    
+    try:
+       print("process",pd)
+       os.kill(pd, signal.SIGTERM)
+    except:
+        print("kill error")
+    sender.send_message("/finished","done") 
 
        
 if __name__ == "__main__":
@@ -35,7 +59,8 @@ if __name__ == "__main__":
         dispatcher = dispatcher.Dispatcher()
 
         dispatcher.map("/test",oscTest,"data") #for testing purposes only
-        dispatcher.map("/draw",drawIt,"r","sr","d","col")
+        dispatcher.map("/draw",drawIt,"r","sr","d","col","rand")
+        dispatcher.map("/kill",killit,"data")
         #now setup sender to return OSC messages to Sonic Pi
         print("Sonic Pi on ip",spip)
  #sender set up for specified IP
