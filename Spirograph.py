@@ -1,8 +1,9 @@
 #Author: marktini   github.com/marktini
 #Spirograph curve drawing program
-#Version 1.0
+#Version 2.0
 #modified to Python3 by Robin Newman Dec 2018
 #additions to allow export of x,y coords using OSC message
+#additions to allow remote random colour selection
 #with aid of pythonosc library
 import math
 import turtle
@@ -33,7 +34,7 @@ class Spirograph:
         
  
     #draw the spirograph given current settings
-    def draw(self):
+    def draw(self,randcol="false"):
         
         #find greatest common denominator of r and R using Euclidian algorithm:
         gcd = euclidianGCD(self.r, self.R)
@@ -84,7 +85,10 @@ class Spirograph:
         t.speed(6)
        
         
-        randColors = False #if True, change up colors randomly with each period
+        if(randcol=="true"):
+            randColors = True #if True, change up colors randomly with each period
+        else:
+            randColors = False
         t.color(self.color)
         sender=udp_client.SimpleUDPClient("127.0.0.1",4559)
         pointsCount = 0
@@ -98,7 +102,7 @@ class Spirograph:
                 sender.send_message('/ycoord',yCoordinates[each])            
             #end of additional section
             if (randColors):
-                if (pointsCount % ptsPeriod == 0):
+                if (pointsCount % (ptsPeriod*4) == 0):
                    red = random.random()
                    green = random.random()
                    blue = random.random()
